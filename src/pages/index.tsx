@@ -130,7 +130,7 @@ export const getStaticProps: GetStaticProps = async () => {
   }
   );
 
-  console.log(postsResponse)
+  // console.log(postsResponse)
 
   const posts = postsResponse.results.map(post => {
     return {
