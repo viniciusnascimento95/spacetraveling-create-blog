@@ -72,9 +72,13 @@ export default function Home({ postsPagination }: HomeProps) {
           }
         ),
         data: {
-          title: RichText.asText(post.data.title),
-          subtitle: RichText.asText(post.data.subtitle),
-          author: RichText.asText(post.data.author),
+          // title: RichText.asText(post.data.title),
+          // subtitle: RichText.asText(post.data.subtitle),
+          // author: RichText.asText(post.data.author),
+
+          title: post.data.title,
+          subtitle: post.data.subtitle,
+          author: post.data.author,
         },
       }
     })
@@ -137,9 +141,14 @@ export const getStaticProps: GetStaticProps = async () => {
       uid: post.uid,
       first_publication_date: post.first_publication_date,
       data: {
-        title: RichText.asText(post.data.title),
-        subtitle: RichText.asText(post.data.subtitle),
-        author: RichText.asText(post.data.author),
+        // title: RichText.asText(post.data.title),
+        // subtitle: RichText.asText(post.data.subtitle),
+        // author: RichText.asText(post.data.author),
+
+        title: post.data.title,
+        subtitle: post.data.subtitle,
+        author: post.data.author,
+
       },
     }
   });
