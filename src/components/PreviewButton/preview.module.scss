@@ -1,0 +1,23 @@
+.previewButton {
+    display: block;
+  
+    width: 100%;
+  
+    padding: 18px 20px;
+  
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 22px;
+    text-align: center;
+  
+    color: var(--black);
+  
+    background: var(--gray-50);
+    border-radius: 4px;
+  
+    transition: filter 0.2s;
+  
+    &:hover {
+      filter: brightness(0.8);
+    }
+  }

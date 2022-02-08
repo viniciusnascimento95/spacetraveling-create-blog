@@ -30,9 +30,11 @@ interface PostPagination {
 
 interface HomeProps {
   postsPagination: PostPagination;
+  preview: boolean;
 }
 
-export default function Home({ postsPagination }: HomeProps) {
+export default function Home({ postsPagination, preview }: HomeProps) {
+
   const formatedPost = postsPagination.results.map(post => {
     return {
       ...post,
@@ -50,14 +52,14 @@ export default function Home({ postsPagination }: HomeProps) {
   const [nextPage, setNextPage] = useState(postsPagination.next_page)
   const [currentPage, setCurrentPage] = useState(1);
 
-  async function handleNextPage() : Promise<void> {
+  async function handleNextPage(): Promise<void> {
     if (currentPage !== 1 && nextPage === null) {
       return
     }
 
     const postsResults = await fetch(`${nextPage}`)
-    .then(response => response.json()
-    );
+      .then(response => response.json()
+      );
     setNextPage(postsResults.next_page);
     setCurrentPage(postsResults.page)
 
@@ -86,7 +88,7 @@ export default function Home({ postsPagination }: HomeProps) {
     setPosts([...posts, ...newPosts])
   }
 
-  return(
+  return (
     <>
       <Head>
         <title>Home | spacetraveling</title>
@@ -97,27 +99,35 @@ export default function Home({ postsPagination }: HomeProps) {
         <div className={styles.posts}>
           {posts.map(post => (
             <Link href={`/post/${post.uid}`} key={post.uid}>
-            <a className={styles.post}>
-              <strong>{post.data.title}</strong>
-              <p>{post.data.subtitle}</p>
-              <ul>
-                <li>
-                  <FiCalendar />
-                  {post.first_publication_date}
-                </li>
-                <li>
-                  <FiUser />
-                  {post.data.author}
-                </li>
-              </ul>
-            </a>
-          </Link>
+              <a className={styles.post}>
+                <strong>{post.data.title}</strong>
+                <p>{post.data.subtitle}</p>
+                <ul>
+                  <li>
+                    <FiCalendar />
+                    {post.first_publication_date}
+                  </li>
+                  <li>
+                    <FiUser />
+                    {post.data.author}
+                  </li>
+                </ul>
+              </a>
+            </Link>
           ))}
 
           {nextPage && (
             <button type='button' onClick={handleNextPage}>
-            Carregar mais posts
-          </button>
+              Carregar mais posts
+            </button>
+          )}
+
+          {preview && (
+            <aside className={commonStyles.exitPreviewButton}>
+              <Link href="/api/exit-preview">
+                <a>Sair do modo Preview</a>
+              </Link>
+            </aside>
           )}
         </div>
       </main>
@@ -125,12 +135,16 @@ export default function Home({ postsPagination }: HomeProps) {
   )
 }
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getStaticProps: GetStaticProps = async ({
+  preview = false,
+  previewData,
+}) => {
   const prismic = getPrismicClient();
   const postsResponse = await prismic.query([
     Prismic.Predicates.at('document.type', 'posts'),
   ], {
     pageSize: 4,
+    ref: previewData?.ref ?? null,
   }
   );
 
@@ -155,12 +169,13 @@ export const getStaticProps: GetStaticProps = async () => {
 
   const postsPagination = {
     next_page: postsResponse.next_page,
-    results : posts,
+    results: posts,
   }
 
   return {
     props: {
       postsPagination,
+      preview,
     }
   }
- };
+};
