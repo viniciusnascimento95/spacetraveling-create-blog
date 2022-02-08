@@ -13,9 +13,12 @@ import Head from 'next/head';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Link from 'next/link';
+import Comments from '../../components/Comments';
 
 interface Post {
   first_publication_date: string | null;
+  last_publication_date: string | null;
+  uid: string;
   data: {
     title: string;
     banner: {
@@ -50,7 +53,7 @@ interface PostProps {
   preview: boolean;
 }
 
-export default function Post({ post, navigation }: PostProps): JSX.Element {
+export default function Post({  preview ,post, navigation }: PostProps): JSX.Element {
 
   const router = useRouter();
 
@@ -137,6 +140,15 @@ export default function Post({ post, navigation }: PostProps): JSX.Element {
             </div>
           )}
         </section>
+
+        <Comments />
+          {preview && (
+            <aside className={commonStyles.exitPreviewButton}>
+              <Link href="/api/exit-preview">
+                <a>Sair do modo Preview</a>
+              </Link>
+            </aside>
+          )}
       </main>
 
     </>
@@ -165,12 +177,14 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps = async ({
   params,
-  // preview = false,
-  // previewData,
+  preview = false,
+  previewData,
 }) => {
   const prismic = getPrismicClient();
   const { slug } = params;
-  const response = await prismic.getByUID('posts', String(slug), {});
+  const response = await prismic.getByUID('posts', String(slug), {
+    ref: previewData?.ref ?? null,
+  });
 
 
   // console.log(prismic);
@@ -194,20 +208,20 @@ export const getStaticProps: GetStaticProps = async ({
     uid: response.uid,
     first_publication_date: response.first_publication_date,
     data: {
-      // title: RichText.asText(response.data.title),
-      // subtitle: RichText.asText(response.data.subtitle),
-      // author: RichText.asText(response.data.author),
+      title: RichText.asText(response.data.title),
+      subtitle: RichText.asText(response.data.subtitle),
+      author: RichText.asText(response.data.author),
 
-      title: response.data.title,
-      subtitle: response.data.subtitle,
-      author: response.data.author,
+      // title: response.data.title,
+      // subtitle: response.data.subtitle,
+      // author: response.data.author,
       banner: {
         url: response.data.banner.url,
       },
       content: response.data.content.map(content => {
         return {
-          heading: content.heading, 
-          // heading: RichText.asText(content.heading),          
+          // heading: content.heading, 
+          heading: RichText.asText(content.heading),          
           body: [...content.body],
         };
       })
@@ -218,6 +232,7 @@ export const getStaticProps: GetStaticProps = async ({
 
   return {
     props: {
+      preview,
       post,
       navigation: {
         prevPost: prevPost?.results,
